@@ -13,4 +13,4 @@ To use this script:
 4.  Profit!
 ```
 
-This script may be updated in the future to add further functionality.
+Currently it is not set up to use both custom modals and nicepage's modals at the same time, though this script may be updated in the future to add further functionality.
