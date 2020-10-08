@@ -1,36 +1,42 @@
-<!-- This script is necassary for sketchfab to work. -->
+<!-- 
+     File = NiceFab_Script;
+     Author = Anthony Mesa; 
+     Date = 10-08-2020
+-->
+
+<!-- Sketchfab API -->
 <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.0.0.js"></script>
 
-<!--
-    This div serves as the anchor point for where the sketchfab
-    viewer and popup will be generated.
--->
+<!-- Root div where all other elements will be added -->
 <div id="skfb-root" style="width: 100%; height: 100%; overflow: hidden;"></div>
 
 <script>
+	
+	/* Sketch id (can be found in embed link) */
+    	var sketch_id = "5160e16e98ed4c9081f9da21239a1c81";
 
-    var sketch_id = "5160e16e98ed4c9081f9da21239a1c81";
-
+	/* Use nicepage's fullscreen built-in modals, or custom iframe modals that show up only within the boundaries of skfb-root */
 	var useModals = true;
 
+    /* Nicepage modal ID's in order of the annotations they correspond to */
 	var annotation_modals = [
 		'#sec-63ca',
 		'#sec-63ca',
 		'#sec-63ca',
 		'#sec-63ca'
-	]
+	];
 
+    /* Webpage links for custom iframes in order of the annotations they correspond to */
     var annotation_pages = [
-        './page_1.html',	        /* Page for annotation 1 */
-		'./page_1.html',	        /* Page for annotation 2 */
-		'./page_1.html',	        /* Page for annotation 3 */
-		'./page_1.html'	        	/* Page for annotation 4 */
+        './page_1.html',	        
+		'./page_1.html',	        
+		'./page_1.html',	       
+		'./page_1.html'	        	
     ];
 
-    /* ======================================================================================================= */
-    /* Establish the root for this script to propogate elements inside of. */
     const root = document.querySelector('#skfb-root');
-    /* This div and iframe constitue the popup (initially hidden) and the sketchfab iframe to be used. */
+
+    /* This div and iframe constitue the popup (initially hidden) and the iframe for the Sketchfab API */
     root.innerHTML = `
     <div id="skfb_pop">
         <div id="skfb_pop_content">
@@ -39,25 +45,27 @@
             <button id="skfb_pop_close_button">X</button> 
         </div>
 	</div>
-	<button id="modal_button" class="u-dialog-link" href="" style="display: none;"></button>
+	<button id="modal_button" class="u-dialog-link" href="" style="visibility: hidden;"></button>
     <iframe src="" id="skfb_api_frame" frameborder="0" allow="autoplay; fullscreen; vr" mozallowfullscreen="true" webkitallowfullscreen="true" height="100%" width="100%"></iframe>
     `;
-    /* Get sketchfab iframe and set version. */
+    
+    /* Get sketchfab iframe and set version */
     var iframe = document.getElementById( 'skfb_api_frame' );
     var version = '1.0.0';
     
-	/* Create Sketchfab client API object using above info. */
+	/* Create Sketchfab client API object using above info */
     var client = new Sketchfab( version, iframe );
 	
-	/* Initialize the API. */
+	/* Initialize the API */
     client.init( sketch_id, {
       
-	  /* API is ready to use. You can interact with the viewer using the api object passed to the success function. */
+	  /* API is ready to use. You can interact with the viewer using the api object passed to the success function */
       success: function onSuccess( api ){
         
-		/* Start the viewer immediately. */
+		/* Start the viewer immediately */
 		api.start();
-
+    
+        /* If using modals, connect annotations to invisible buttons that trigger nicepage's built-in modals */
 		if(useModals){
 			api.addEventListener('annotationFocus', function(info) {
 				var button = document.getElementById("modal_button");
@@ -66,20 +74,20 @@
 				button.click();
 				console.log('clicked ' + info);
 			});
-			console.log('added modal event listener');
 		} else {
-			/* Create an event listener that catches any user annotation interactions. (assigning popup function)*/
+			/* Connect annotations to custom popup iframes */
 			api.addEventListener('annotationFocus', function(info) {
 				Popup(info, "skfb_pop");
 			});
-			console.log('added page event listener');
 		}
       },
-      /* If initialization fails, throw an error. */
+        
+      /* If initialization fails, throw an error */
       error: function onError() {
         console.log( 'Viewer error' );
       },
-      /* Parameters determine initial state of sketchfab after loading. */
+        
+      /* Parameters to determine sketchfab's initial state */
 	  autostart: 1,
 	  transparent: 1,
 	  ui_controls: 0,
@@ -90,6 +98,7 @@
 	  ui_watermark_link: 0
 	} );
 	
+    /* This scrollbar CSS is injected into the custom popups when Popup() is called */
 	var scrollbar_style = `
 	<style>
 		/* Let's get this party started */
@@ -113,23 +122,6 @@
 			background: rgba(0,0,0,0.4); 
 		}
 	</style>`;
-	
-	var sketchfab_style = `
-	<style>
-		.tooltip-content{
-			display: none !important;
-			visibility: hidden !important;
-		}
-		.controls{
-			display: none !important;
-			visibility: hidden !important;
-		}
-		.titlebar{
-			display: none !important;
-			visibility: hidden !important;
-		}
-	</style>
-	`;
 
     /* Shows elements with or without a fade effect */
 	function Show(elements, isFade, time){
@@ -155,6 +147,7 @@
 			}
 		}
     }
+    
 	/* Hides elements with or without a fade effect */
     function Hide(elements, isFade, time){
 		document.documentElement.style.setProperty('--fade-speed', time + " !important");
@@ -193,13 +186,6 @@
 		info.innerHTML = `<iframe class="skfb_pop_iframe" src="` + annotation_pages[index] + `" onload="ScrollbarInject()"></iframe>`;
 		Show([popup_id], 1, "0.5s");
 	}
-	
-	function SketchfabInject(){
-		var skfb_iframe = document.getElementById('skfb_api_frame');
-		var win = skfb_iframe.contentWindow;
-		var doc = skfb_iframe.contentDocument? skfb_iframe.contentDocument: skfb_iframe.contentWindow.document;
-        doc.body.innerHTML = doc.body.innerHTML + sketchfab_style;
-    }
     
     function ScrollbarInject(){
 		var popup_iframe = document.getElementsByClassName('skfb_pop_iframe')[0];
