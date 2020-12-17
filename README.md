@@ -14,3 +14,5 @@ To use this script:
 ```
 
 Currently it is not set up to use both custom modals and nicepage's modals at the same time, though this script may be updated in the future to add further functionality.
+
+(Video coming in the future)
